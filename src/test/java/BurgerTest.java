@@ -1,9 +1,10 @@
-import Generators.BunGenerator;
-import Generators.BurgerGenerator;
-import Generators.Constants;
-import Generators.IngredientGenerator;
+import Generators.*;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 import praktikum.Bun;
 import praktikum.Burger;
 import praktikum.Ingredient;
@@ -11,22 +12,30 @@ import praktikum.Ingredient;
 /**
  * Тест бургера.
  */
+@RunWith(MockitoJUnitRunner.class)
 public class BurgerTest {
+    @Mock
+    Burger burger;
+
+    @Mock
+    Bun bun;
+
     /**
      * Цена бургера только с булочками должна быть равна двойной цене булочки.
      */
     @Test
     public void shouldBurgerHasDoublePriceWithOnlyBuns(){
-        Burger burger = new Burger();
+        float bunPrice = BunGenerator.getRandomPrice();
+        Mockito.when(bun.getPrice()).thenReturn(bunPrice);
 
-        Bun bun = BunGenerator.getRandomBun();
-        burger.setBuns(bun);
+        Burger newBurger = new Burger();
+        newBurger.setBuns(bun);
 
         Assert.assertEquals(
-            "Цена бургера только с булочками должна быть равна двойной цене булочки.",
-            bun.getPrice() * 2,
-            burger.getPrice(),
-            Constants.DELTA_PRICE_EQUALITY
+                "Цена бургера только с булочками должна быть равна двойной цене булочки.",
+                newBurger.getPrice(),
+                bunPrice * 2,
+                Constants.DELTA_PRICE_EQUALITY
         );
     }
 
@@ -97,7 +106,7 @@ public class BurgerTest {
         burger.moveIngredient(oldIndex, newIndex);
 
         Assert.assertTrue(
-            "После изменения положения ингредиента он =должен поменять позицию.",
+            "После изменения положения ингредиента он должен поменять позицию.",
             firstIngredient == burger.ingredients.get(newIndex) && secondIngredient == burger.ingredients.get(oldIndex)
         );
     }
@@ -107,11 +116,9 @@ public class BurgerTest {
      */
     @Test
     public void shouldNotEmptyBurgerHasPriceTest(){
-        Burger burger = BurgerGenerator.getRandomBurger();
-
         Assert.assertTrue(
-            "Цена бургера должна быть больше нуля.",
-            burger.getPrice() > 0.0f
+            "Цена случайного бургера должна быть больше нуля.",
+            BurgerGenerator.getRandomBurger().getPrice() > 0.0f
         );
     }
 
