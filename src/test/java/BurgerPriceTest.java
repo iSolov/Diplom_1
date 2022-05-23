@@ -66,7 +66,7 @@ public class BurgerPriceTest {
     }
 
     /**
-     * "Цена бургера должна совпадать с указанной."
+     * Цена бургера должна совпадать с указанной.
      */
     @Test
     public void shouldMakeOrder() {
