@@ -8,7 +8,13 @@ import praktikum.Bun;
 import praktikum.Burger;
 import praktikum.Ingredient;
 
+/**
+ * Тест бургера.
+ */
 public class BurgerTest {
+    /**
+     * Цена бургера только с булочками должна быть равна двойной цене булочки.
+     */
     @Test
     public void shouldBurgerHasDoublePriceWithOnlyBuns(){
         Burger burger = new Burger();
@@ -24,6 +30,9 @@ public class BurgerTest {
         );
     }
 
+    /**
+     * Бургер должен содержать ингредиенты, если их в него добавить.
+     */
     @Test
     public void shouldBurgerHasIngredientsAfterAddingTest(){
         Burger burger = new Burger();
@@ -42,6 +51,9 @@ public class BurgerTest {
         );
     }
 
+    /**
+     * Бургер должен содержать ингредиенты, если их в него добавить и удалить несколько.
+     */
     @Test
     public void shouldBurgerHasIngredientsAfterAddingAndRemovingTest(){
         Burger burger = BurgerGenerator.getRandomEmptyBurger();
@@ -66,6 +78,9 @@ public class BurgerTest {
         );
     }
 
+    /**
+     * Функция изменения положения ингредиента должна отрабатывать корректно.
+     */
     @Test
     public void shouldBurgerIngredientsMoveTest(){
         Burger burger = BurgerGenerator.getRandomEmptyBurger();
@@ -87,6 +102,9 @@ public class BurgerTest {
         );
     }
 
+    /**
+     * Цена бургера должна быть больше нуля у случайного бургера.
+     */
     @Test
     public void shouldNotEmptyBurgerHasPriceTest(){
         Burger burger = BurgerGenerator.getRandomBurger();
@@ -97,6 +115,9 @@ public class BurgerTest {
         );
     }
 
+    /**
+     * Рецепт бургера должен быть не пустым у случайного бургера.
+     */
     @Test
     public void shouldBurgerPrintReceiptTest(){
         Assert.assertFalse(
