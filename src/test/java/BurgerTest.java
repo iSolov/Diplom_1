@@ -1,4 +1,6 @@
-import Generators.*;
+import Generators.BunGenerator;
+import Generators.Constants;
+import Generators.IngredientGenerator;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -8,6 +10,10 @@ import org.mockito.junit.MockitoJUnitRunner;
 import praktikum.Bun;
 import praktikum.Burger;
 import praktikum.Ingredient;
+import praktikum.IngredientType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Тест бургера.
@@ -15,26 +21,28 @@ import praktikum.Ingredient;
 @RunWith(MockitoJUnitRunner.class)
 public class BurgerTest {
     @Mock
-    Burger burger;
+    Bun bun;
 
     @Mock
-    Bun bun;
+    Ingredient ingredient;
+
+    Burger burger = new Burger();
 
     /**
      * Цена бургера только с булочками должна быть равна двойной цене булочки.
      */
     @Test
-    public void shouldBurgerHasDoublePriceWithOnlyBuns(){
+    public void shouldBurgerHasDoublePriceWithOnlyBuns() {
         float bunPrice = BunGenerator.getRandomPrice();
-        Mockito.when(bun.getPrice()).thenReturn(bunPrice);
+        float expectedPrice = bunPrice * 2;
 
-        Burger newBurger = new Burger();
-        newBurger.setBuns(bun);
+        burger.setBuns(bun);
+        Mockito.when(bun.getPrice()).thenReturn(bunPrice);
 
         Assert.assertEquals(
                 "Цена бургера только с булочками должна быть равна двойной цене булочки.",
-                newBurger.getPrice(),
-                bunPrice * 2,
+                expectedPrice,
+                burger.getPrice(),
                 Constants.DELTA_PRICE_EQUALITY
         );
     }
@@ -43,20 +51,15 @@ public class BurgerTest {
      * Бургер должен содержать ингредиенты, если их в него добавить.
      */
     @Test
-    public void shouldBurgerHasIngredientsAfterAddingTest(){
-        Burger burger = new Burger();
+    public void shouldBurgerHasIngredientAfterAddingTest() {
+        burger.addIngredient(ingredient);
 
-        burger.setBuns(BunGenerator.getRandomBun());
-
-        int ingredientsCount = 5;
-        for (int i = 0; i < ingredientsCount; i++) {
-            burger.addIngredient(IngredientGenerator.getRandomIngredient());
-        }
+        int ingredientsCountExpected = 1;
 
         Assert.assertEquals(
-            "После добавления " + ingredientsCount + " ингредиентов, общее их количество должно быть 3 в бургере.",
-            ingredientsCount,
-            burger.ingredients.size()
+                "После добавления ингредиента, общее их количество должно быть 3 в бургере.",
+                ingredientsCountExpected,
+                burger.ingredients.size()
         );
     }
 
@@ -64,26 +67,16 @@ public class BurgerTest {
      * Бургер должен содержать ингредиенты, если их в него добавить и удалить несколько.
      */
     @Test
-    public void shouldBurgerHasIngredientsAfterAddingAndRemovingTest(){
-        Burger burger = BurgerGenerator.getRandomEmptyBurger();
+    public void shouldBurgerHasIngredientsAfterAddingAndRemovingTest() {
+        burger.addIngredient(ingredient);
+        burger.removeIngredient(0);
 
-        int ingredientsForAddingCount = 5;
-        for (int i = 0; i < ingredientsForAddingCount; i++) {
-            burger.addIngredient(IngredientGenerator.getRandomIngredient());
-        }
-
-        int ingredientsForRemovingCount = 3;
-        for (int i = 0; i < ingredientsForRemovingCount; i++) {
-            burger.removeIngredient(i);
-        }
-
-        int expectedIngredientsCount = ingredientsForAddingCount - ingredientsForRemovingCount;
+        List<Ingredient> expected = new ArrayList<>();
 
         Assert.assertEquals(
-            "После добавления " + ingredientsForAddingCount + " ингредиентов и удаления " + ingredientsForRemovingCount +
-                ", общее их количество должно быть " + expectedIngredientsCount + " в бургере.",
-            expectedIngredientsCount,
-            burger.ingredients.size()
+                "После добавления ингредиента и удаления, общее их количество должно быть 0 в бургере.",
+                expected,
+                burger.ingredients
         );
     }
 
@@ -91,23 +84,14 @@ public class BurgerTest {
      * Функция изменения положения ингредиента должна отрабатывать корректно.
      */
     @Test
-    public void shouldBurgerIngredientsMoveTest(){
-        Burger burger = BurgerGenerator.getRandomEmptyBurger();
+    public void shouldBurgerIngredientsMoveTest() {
+        burger.addIngredient(ingredient);
+        burger.addIngredient(ingredient);
+        burger.moveIngredient(0, 1);
 
-        int oldIndex = 0;
-        int newIndex = 1;
-
-        Ingredient firstIngredient = IngredientGenerator.getRandomIngredient();
-        Ingredient secondIngredient = IngredientGenerator.getRandomIngredient();
-
-        burger.addIngredient(firstIngredient);
-        burger.addIngredient(secondIngredient);
-
-        burger.moveIngredient(oldIndex, newIndex);
-
-        Assert.assertTrue(
-            "После изменения положения ингредиента он должен поменять позицию.",
-            firstIngredient == burger.ingredients.get(newIndex) && secondIngredient == burger.ingredients.get(oldIndex)
+        Assert.assertNotNull(
+                "После изменения положения ингредиента он должен поменять позицию.",
+                burger.ingredients.get(1)
         );
     }
 
@@ -115,24 +99,37 @@ public class BurgerTest {
      * Цена бургера должна быть больше нуля у случайного бургера.
      */
     @Test
-    public void shouldNotEmptyBurgerHasPriceTest(){
+    public void shouldNotEmptyBurgerHasPriceTest() {
+        burger.setBuns(bun);
+        burger.addIngredient(ingredient);
+
+        Mockito.when(bun.getPrice()).thenReturn(BunGenerator.getRandomPrice());
+        Mockito.when(ingredient.getPrice()).thenReturn(IngredientGenerator.getRandomPrice());
+
         Assert.assertTrue(
-            "Цена случайного бургера должна быть больше нуля.",
-            BurgerGenerator.getRandomBurger().getPrice() > 0.0f
+                "Цена случайного бургера должна быть больше нуля.",
+                burger.getPrice() > 0.0f
         );
     }
 
     /**
-     * Рецепт бургера должен быть не пустым у случайного бургера.
+     * Рецепт бургера должен быть не пустым.
      */
     @Test
-    public void shouldBurgerPrintReceiptTest(){
+    public void shouldBurgerPrintReceiptTest() {
+        burger.setBuns(bun);
+        burger.addIngredient(ingredient);
+
+        Mockito.when(bun.getPrice()).thenReturn(100f);
+        Mockito.when(bun.getName()).thenReturn("BunName");
+
+        Mockito.when(ingredient.getName()).thenReturn("IngredientName");
+        Mockito.when((ingredient.getType())).thenReturn(IngredientType.SAUCE);
+        Mockito.when(ingredient.getPrice()).thenReturn(200f);
+
         Assert.assertFalse(
-            "Рецепт бургера должен быть не пустым.",
-            BurgerGenerator
-                .getRandomBurger()
-                .getReceipt()
-                .isEmpty()
+                "Рецепт бургера должен быть не пустым.",
+                burger.getReceipt().isEmpty()
         );
     }
 }

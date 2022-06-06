@@ -1,67 +1,57 @@
 import Generators.Constants;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import praktikum.*;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import praktikum.Bun;
+import praktikum.Burger;
+import praktikum.Ingredient;
+import praktikum.IngredientType;
 
 /**
  * Тестирование цен бургера.
  */
 @RunWith(Parameterized.class)
 public class BurgerPriceTest {
+    @Mock
+    Bun bun;
+
+    @Mock
+    Ingredient ingredient;
+
     private final Burger burger;
+    private final float bunPrice;
+    private final float ingredientPrice;
+    private final IngredientType ingredientType;
     private final float expectedPrice;
 
-    public BurgerPriceTest(Bun bun, Ingredient[] ingredients, float expectedPrice){
-        this.burger = new Burger();
-        this.burger.setBuns(bun);
-        for (Ingredient ingredient : ingredients) {
-            this.burger.addIngredient(ingredient);
-        }
+    @Before
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
 
+    public BurgerPriceTest(float bunPrice, float ingredientPrice, IngredientType ingredientType, float expectedPrice) {
+        this.bunPrice = bunPrice;
+        this.ingredientPrice = ingredientPrice;
+        this.ingredientType = ingredientType;
         this.expectedPrice = expectedPrice;
+
+        this.burger = new Burger();
     }
 
     @Parameterized.Parameters
     public static Object[][] getBurgersData() {
         return new Object[][]{
-            {
-                new Bun("Bun", 100),
-                new Ingredient[]{ },
-                200
-            },
-            {
-                new Bun("Bun", 100),
-                new Ingredient[]{
-                    new Ingredient(IngredientType.SAUCE, "Sauce", 100),
-                },
-                300
-            },
-            {
-                new Bun("Bun", 100),
-                new Ingredient[]{
-                    new Ingredient(IngredientType.SAUCE, "Sauce", 100),
-                    new Ingredient(IngredientType.FILLING, "Filling 1", 200),
-                    new Ingredient(IngredientType.FILLING, "Filling 2", 300),
-                },
-                800
-            },
-            {
-                new Bun("Bun", 0),
-                new Ingredient[]{
-                    new Ingredient(IngredientType.SAUCE, "Sauce", 0),
-                },
-                0
-            },
-            {
-                new Bun("Bun", 200),
-                new Ingredient[]{
-                    new Ingredient(IngredientType.FILLING, "Filling", 500),
-                    new Ingredient(IngredientType.FILLING, "Filling", 500),
-                },
-                1400
-            },
+                {0, 0, IngredientType.FILLING, 0},
+                {100, 0, IngredientType.FILLING, 200},
+                {100, 20, IngredientType.FILLING, 220},
+                {0, 0, IngredientType.SAUCE, 0},
+                {100, 0, IngredientType.SAUCE, 200},
+                {100, 20, IngredientType.SAUCE, 220},
         };
     }
 
@@ -70,11 +60,18 @@ public class BurgerPriceTest {
      */
     @Test
     public void shouldMakeOrder() {
+        burger.setBuns(bun);
+        burger.addIngredient(ingredient);
+
+        Mockito.when(bun.getPrice()).thenReturn(bunPrice);
+        Mockito.when(ingredient.getPrice()).thenReturn(ingredientPrice);
+        Mockito.when(ingredient.getType()).thenReturn(ingredientType);
+
         Assert.assertEquals(
-            "Цена бургера должна совпадать с указанной.",
-            expectedPrice,
-            burger.getPrice(),
-            Constants.DELTA_PRICE_EQUALITY
+                "Цена бургера должна совпадать с указанной.",
+                expectedPrice,
+                burger.getPrice(),
+                Constants.DELTA_PRICE_EQUALITY
         );
     }
 }
